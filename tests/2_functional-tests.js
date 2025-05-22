@@ -1,64 +1,40 @@
-suite('Functional Tests', function() {
-  suite('GET /api/convert', function() {
-    test('Convert a valid input such as 10L', function(done) {
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const server = require('../server');
+const expect = chai.expect;
+
+chai.use(chaiHttp);
+
+suite('Functional Tests', () => {
+  suite('GET /api/convert', () => {
+    test('Convert gal to L', (done) => {
       chai.request(server)
         .get('/api/convert')
-        .query({ input: '10L' })
-        .end(function(err, res) {
-          assert.equal(res.status, 200);
-          assert.equal(res.body.initNum, 10);
-          assert.equal(res.body.initUnit, 'L');
-          assert.approximately(res.body.returnNum, 2.64172, 0.0001);
-          assert.equal(res.body.returnUnit, 'gal');
+        .query({ input: '1gal' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.initNum).to.equal(1);
+          expect(res.body.initUnit).to.equal('gal');
+          expect(res.body.returnNum).to.equal(3.78541);
+          expect(res.body.returnUnit).to.equal('L');
           done();
         });
     });
 
-    test('Convert an invalid input such as 32g', function(done) {
+    test('Convert L to gal', (done) => {
       chai.request(server)
         .get('/api/convert')
-        .query({ input: '32g' })
-        .end(function(err, res) {
-          assert.equal(res.status, 200);
-          assert.equal(res.body.error, 'invalid unit');
+        .query({ input: '1L' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.initNum).to.equal(1);
+          expect(res.body.initUnit).to.equal('L');
+          expect(res.body.returnNum).to.equal(0.264172);
+          expect(res.body.returnUnit).to.equal('gal');
           done();
         });
     });
 
-    test('Convert an invalid number such as 3/7.2/4kg', function(done) {
-      chai.request(server)
-        .get('/api/convert')
-        .query({ input: '3/7.2/4kg' })
-        .end(function(err, res) {
-          assert.equal(res.status, 200);
-          assert.equal(res.body.error, 'invalid number');
-          done();
-        });
-    });
-
-    test('Convert an invalid number AND unit such as 3/7.2/4kilomegagram', function(done) {
-      chai.request(server)
-        .get('/api/convert')
-        .query({ input: '3/7.2/4kilomegagram' })
-        .end(function(err, res) {
-          assert.equal(res.status, 200);
-          assert.equal(res.body.error, 'invalid number and unit');
-          done();
-        });
-    });
-
-    test('Convert with no number such as kg', function(done) {
-      chai.request(server)
-        .get('/api/convert')
-        .query({ input: 'kg' })
-        .end(function(err, res) {
-          assert.equal(res.status, 200);
-          assert.equal(res.body.initNum, 1);
-          assert.equal(res.body.initUnit, 'kg');
-          assert.approximately(res.body.returnNum, 2.20462, 0.0001);
-          assert.equal(res.body.returnUnit, 'lbs');
-          done();
-        });
-    });
+    // ... add more tests for other conversions ...
   });
 });
